@@ -4,6 +4,9 @@
  */
 package messager;
 
+import messaging.Message;
+import messaging.Peer;
+
 /**
  *
  * @author luisarmando
@@ -13,7 +16,15 @@ public class Messager {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // TODO code application logic here
+        Peer peer = new Peer();
+         Thread.sleep(1000);
+        System.out.println("Sending Message");
+        peer.sendMessage(new Message("fulano", "teste"));
+        peer.sendMessage(new Message("fulano", "teste2"));
+        peer.sendMessage(new Message("fulano", "teste3"));
+        peer.sendMessage(new Message("fulano", "teste4"));
+        System.out.println("Sent");
     }
 }

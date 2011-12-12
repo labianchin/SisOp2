@@ -19,7 +19,7 @@ public class Message implements Serializable {
     public String title = null;
     public String topic = null;
     
-    Message(String to, String contents){
+    public Message(String to, String contents){
         this.to = to;
         this.contents = contents;
     }

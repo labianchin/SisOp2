@@ -4,6 +4,7 @@
  */
 package messaging;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -18,42 +19,49 @@ public class PeerListener extends Thread {
     private static int port = 1001; /* port the server listens on */
 
 
+    @Override
     public void run() {
         ServerSocket server = null;
-        try {
-            server = new ServerSocket(port); /* start listening on the port */
-        } catch (IOException e) {
-            System.err.println("Could not listen on port: " + port);
-            System.err.println(e);
-            System.exit(1);
-        }
 
-        Socket client = null;
-        try {
-            client = server.accept();
-        } catch (IOException e) {
-            System.err.println("Accept failed.");
-            System.err.println(e);
-            System.exit(1);
-        }
+            try {
+                server = new ServerSocket(port); /* start listening on the port */
+            } catch (IOException e) {
+                System.err.println("Could not listen on port: " + port);
+                System.err.println(e);
+                System.exit(1);
+            }
+            System.out.println("Serving at port " + port);
+
+        while (true) {
+            Socket client = null;
+            try {
+                client = server.accept();
+            } catch (IOException e) {
+                System.err.println("Accept failed.");
+                System.err.println(e);
+                System.exit(1);
+            }
 
 
-        try {
-            /* obtain an input stream to the client *//*
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-            client.getInputStream()));*/
+            try {
+                /* obtain an input stream to the client *//*
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                client.getInputStream()));*/
 
-            ObjectInputStream oi =
-                    new ObjectInputStream(client.getInputStream());
+                ObjectInputStream oi =
+                        new ObjectInputStream(client.getInputStream());
 
-            //Read serialized object
-            Message message = (Message) oi.readObject();
-            System.out.println("MyDate = " + message);
+                //Read serialized object
+                Message message = (Message) oi.readObject();
+                System.out.println("Message recieved = " + message);
+                /*DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());
+                outToClient.writeBytes("ok hehe");*/
 
-        } catch (ClassNotFoundException cnfe) {
-            System.out.println(cnfe);
-        } catch (IOException ioe) {
-            System.out.println(ioe);
+            } catch (ClassNotFoundException cnfe) {
+                System.out.println(cnfe);
+            } catch (IOException ioe) {
+                System.out.println(ioe);
+            }
         }
     }
 }
