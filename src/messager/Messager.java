@@ -21,10 +21,15 @@ public class Messager {
         Peer peer = new Peer();
          Thread.sleep(1000);
         System.out.println("Sending Message");
-        peer.sendMessage(new Message("fulano", "teste"));
-        peer.sendMessage(new Message("fulano", "teste2"));
-        peer.sendMessage(new Message("fulano", "teste3"));
-        peer.sendMessage(new Message("fulano", "teste4"));
+        peer.sendMessage(new Message("localhost", "teste"));
+        peer.sendMessage(new Message("localhost", "teste2"));
+        peer.sendMessage(new Message("localhost", "teste3"));
+        peer.sendMessage(new Message("localhost", "teste4"));
         System.out.println("Sent");
+        System.out.println("Now, let's read it");
+        System.out.println("Got it: " + peer.readMessage());
+        System.out.println("Got it: " +peer.readMessage());
+        System.out.println("Got it: " +peer.readMessage());
+        System.out.println("Got it: " +peer.readMessage());
     }
 }

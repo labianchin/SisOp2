@@ -4,11 +4,11 @@
  */
 package messaging;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Queue;
 
 /**
  *
@@ -17,6 +17,11 @@ import java.net.Socket;
 public class PeerListener extends Thread {
 
     private static int port = 1001; /* port the server listens on */
+    public Queue<Message> queue;
+    
+    public PeerListener(Queue queue){
+        this.queue = queue;
+    }
 
 
     @Override
@@ -50,10 +55,12 @@ public class PeerListener extends Thread {
 
                 ObjectInputStream oi =
                         new ObjectInputStream(client.getInputStream());
-
+ 
                 //Read serialized object
                 Message message = (Message) oi.readObject();
-                System.out.println("Message recieved = " + message);
+                message.stampRecieve(client.getInetAddress().getHostName());
+                queue.add(message);
+                System.out.println("Listener recieved Message: " + message);
                 /*DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());
                 outToClient.writeBytes("ok hehe");*/
 
