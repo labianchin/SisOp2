@@ -30,8 +30,9 @@ public class Subscriber {
             topicList.add(title);
         } else {
             Set<String> topicList = new HashSet();
-            topicList.add(title);
             subscription.put(topic, topicList);
+            if (title!=null)
+                topicList.add(title);
         }
     }
 }

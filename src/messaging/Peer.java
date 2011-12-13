@@ -4,8 +4,7 @@
  */
 package messaging;
 
-import java.io.*;
-import java.net.*;
+import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -15,25 +14,38 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class Peer implements MessagesOrganizer {
 
     public PeerListener listener;
-    public PriorityBlockingQueue<Message> queue;
+    public Queue<Message> incomingQueue;
+    public Queue<Message> outgoingQueue;
 
     public Peer() {
-        this.queue = new PriorityBlockingQueue();
+        this.incomingQueue = new PriorityBlockingQueue();
         listener = new PeerListener((MessagesOrganizer)this);
         listener.start();
     }
 
-    //http://lycog.com/java/tcp-object-transmission-java/
-    public void sendMessage(Message message) {
-        message.peerDispath();
+    public boolean sendMessage(Message message) {
+        if (message.peerDispath())
+            return true;
+        else { //não conseguiu enviar, coloca numa fila para ser enviado
+            this.outgoingQueue.add(message);
+            return false;
+        }
     }
 
     public Message readMessage() {
-        return queue.poll();
+        return incomingQueue.poll();
     }
     
     @Override
     public boolean addMessage(Message message){
-        return this.queue.add(message);
+        return this.incomingQueue.add(message);
+    }
+    
+    public void proccessOutgoingMessages(){
+        Message message = outgoingQueue.poll();
+        while (message!=null){
+            this.sendMessage(message);
+            message = outgoingQueue.poll();
+        }
     }
 }

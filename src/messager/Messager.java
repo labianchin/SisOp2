@@ -5,7 +5,9 @@
 package messager;
 
 import messaging.Message;
+import messaging.PSServer;
 import messaging.Peer;
+import testing.TopicTitle;
 
 /**
  *
@@ -31,5 +33,10 @@ public class Messager {
         System.out.println("Got it: " +peer.readMessage());
         System.out.println("Got it: " +peer.readMessage());
         System.out.println("Got it: " +peer.readMessage());
+        
+        PSServer serv = new PSServer();
+        serv.registerTopicTitles(TopicTitle.getTopicTitles());
+        System.out.println(serv.getTopics());
+        System.out.println(serv.getTitles("Cachorros"));
     }
 }
