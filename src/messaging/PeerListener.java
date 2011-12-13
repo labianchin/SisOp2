@@ -17,10 +17,10 @@ import java.util.Queue;
 public class PeerListener extends Thread {
 
     private static int port = 1001; /* port the server listens on */
-    public Queue<Message> queue;
+    public MessagesOrganizer organizer;
     
-    public PeerListener(Queue queue){
-        this.queue = queue;
+    public PeerListener(MessagesOrganizer organizer){
+        this.organizer = organizer;
     }
 
 
@@ -59,7 +59,7 @@ public class PeerListener extends Thread {
                 //Read serialized object
                 Message message = (Message) oi.readObject();
                 message.stampRecieve(client.getInetAddress().getHostName());
-                queue.add(message);
+                organizer.addMessage(message);
                 System.out.println("Listener recieved Message: " + message);
                 /*DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());
                 outToClient.writeBytes("ok hehe");*/

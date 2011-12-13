@@ -36,6 +36,11 @@ public class Message implements Serializable, Comparable<Message> {
         this.contents = contents;
     }
     
+    public Message(String contents){
+        this.timestampSender = Calendar.getInstance().getTime();
+        this.contents = contents;
+    }
+    
     @Override
     public String toString(){
         return this.from + ": " + this.contents;
@@ -58,7 +63,7 @@ public class Message implements Serializable, Comparable<Message> {
     
     public static int defaultPort = 1001;
     //http://lycog.com/java/tcp-object-transmission-java/
-    public boolean dispatch(){
+    public boolean dispatchTo(String to){
         Socket socket = null;
         String[] addport = to.split(":");
         String address = addport[0];
@@ -79,6 +84,10 @@ public class Message implements Serializable, Comparable<Message> {
             System.out.println(ioe);
             return false;
         }
+    }
+    
+    public boolean peerDispath(){
+        return this.dispatchTo(this.to);
     }
     
     public Message buildReply(String replyContents){
