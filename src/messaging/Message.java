@@ -7,7 +7,6 @@ package messaging;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Calendar;
@@ -80,5 +79,12 @@ public class Message implements Serializable, Comparable<Message> {
             System.out.println(ioe);
             return false;
         }
+    }
+    
+    public Message buildReply(String replyContents){
+        Message reply = new Message(this.from, replyContents);
+        reply.title = this.title;
+        reply.topic = this.topic;
+        return reply;
     }
 }
