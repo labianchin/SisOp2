@@ -34,7 +34,7 @@ public class Peer implements MessagesOrganizer {
 
     public boolean sendMessage(Message message) {
         if (message.peerDispath()) {
-            this.proccessOutgoingMessages();
+            //this.proccessOutgoingMessages();
             return true;
         } else { //não conseguiu enviar, coloca numa fila para ser enviado
             this.outgoingQueue.add(message);
@@ -60,7 +60,9 @@ public class Peer implements MessagesOrganizer {
         }
     }
     
+    //envia para o servidor PS a requisição de assinar topico e titulo
     public void askSubscription(String topic, String title){
+        //TODO
         
     }
 }

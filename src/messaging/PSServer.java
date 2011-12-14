@@ -34,13 +34,29 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
     public SubscriberSender sender;
 
     public PSServer() {
+        this.preapre();
+        this.startAll();
+    }
+
+    public PSServer(int port) {
+        this.preapre();
+        listener.setPort(port);
+        this.startAll();
+    }
+
+    public void preapre() {
+
         this.subscribers = new HashMap<String, Subscriber>();
         this.messages = new ConcurrentHashMap<String, Map<String, Queue<Message>>>();
         listener = new PeerListener((MessagesOrganizer) this);
         listener.setPort(2001);
-        listener.start();
         sender = new SubscriberSender(this);
+    }
+
+    public void startAll() {
+        listener.start();
         sender.start();
+
     }
 
     public Collection<Message> read(String topic, String title) {
@@ -91,6 +107,7 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
     public boolean dispatchToSubscribers() {
         for (Subscriber subscriber : this.subscribers.values()) {
             Socket socket = null;
+            ObjectOutputStream oo = null;
             String[] addport = subscriber.address.split(":");
             String address = addport[0];
             int port;
@@ -100,9 +117,6 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
                 port = Integer.parseInt(addport[1]);
             }
             try { //envia várias mensagens para um assinante numa mesma conexão
-                socket = new Socket(InetAddress.getByName(address), port);
-                ObjectOutputStream oo = new ObjectOutputStream(socket.getOutputStream());
-                System.out.println("Sending to " + (address + ":" + port));
                 //Send object over the network
                 for (String topic : this.messages.keySet()) {
                     if (!subscriber.subscription.isEmpty()
@@ -122,10 +136,15 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
                             }
                         }
                         if (found) {
-                                //System.out.println(subscriber.lastTimestamp);
+                            //System.out.println(subscriber.lastTimestamp);
                             for (Message message : this.messages.get(topic).get(title)) {
                                 //System.out.println(message.timestampReciever);
                                 if (message.timestampReciever.compareTo(subscriber.lastTimestamp) > 0) {
+                                    if (socket == null) { //cria a conexão
+                                        System.out.println("Debug: connecting with "+subscriber.address);
+                                        socket = new Socket(InetAddress.getByName(address), port);
+                                        oo = new ObjectOutputStream(socket.getOutputStream());
+                                    }
                                     oo.writeObject(message);
                                     oo.flush();
                                     subscriber.lastTimestamp = message.timestampReciever;
@@ -134,7 +153,10 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
                         }
                     }
                 }
-                socket.close();
+                if (socket != null) {
+                    socket.close();
+                    System.out.println("Debug: connection with "+subscriber.address+" closed");
+                }
                 return true;
             } catch (IOException ioe) {
                 System.out.println(ioe);

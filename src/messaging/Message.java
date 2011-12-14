@@ -41,6 +41,14 @@ public class Message implements Serializable, Comparable<Message> {
         this.contents = contents;
     }
     
+    public Message(String to, String topic, String title, String contents){
+        this.timestampSender = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());//Calendar.getInstance().getTime();
+        this.to = to;
+        this.topic = topic;
+        this.title = title;
+        this.contents = contents;
+    }
+    
     @Override
     public String toString(){
         return this.from + ": " + this.contents;

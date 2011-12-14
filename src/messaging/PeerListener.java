@@ -58,7 +58,7 @@ public class PeerListener extends Thread {
                 while (client.isConnected()) {
                     //Read serialized object
                     Message message = (Message) oi.readObject();
-                    message.stampRecieve(client.getInetAddress().getHostName());
+                    message.stampRecieve(client.getInetAddress().getHostName()+":"+client.getPort());
                     organizer.addMessage(message);
 
                     System.out.println(
