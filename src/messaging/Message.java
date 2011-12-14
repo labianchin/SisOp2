@@ -51,7 +51,12 @@ public class Message implements Serializable, Comparable<Message> {
     
     @Override
     public String toString(){
-        return this.from + ": " + this.contents;
+        String body = this.contents;
+        if (this.title.length()>0 || this.topic.length()>0)
+            body = "[" + this.topic + "]/" + "[" + this.title + "]: " + body;
+        return this.from +
+                "(" + this.timestampReciever + ")" +
+                ": " + body;
     }
     
     public void stampRecieve(String sender){

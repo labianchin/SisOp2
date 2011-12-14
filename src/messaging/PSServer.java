@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
     /* Listen for incomming messages */
 
     public PeerListener listener;
+    public SubscriptionListener subscriptionListener;
     //public subscribers;
     public Map<String, Subscriber> subscribers;
     public Map<String, Map<String, Queue<Message>>> messages;
@@ -41,22 +43,23 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
     public PSServer(int port) {
         this.preapre();
         listener.setPort(port);
+        subscriptionListener.setPort(port+1);
         this.startAll();
     }
 
     public void preapre() {
-
         this.subscribers = new HashMap<String, Subscriber>();
         this.messages = new ConcurrentHashMap<String, Map<String, Queue<Message>>>();
-        listener = new PeerListener((MessagesOrganizer) this);
-        listener.setPort(2001);
-        sender = new SubscriberSender(this);
+        this.listener = new PeerListener((MessagesOrganizer) this);
+        this.listener.setPort(2001);
+        this.sender = new SubscriberSender(this);
+        this.subscriptionListener = new SubscriptionListener(this);
     }
 
     public void startAll() {
         listener.start();
         sender.start();
-
+        subscriptionListener.start();
     }
 
     public Collection<Message> read(String topic, String title) {
@@ -104,7 +107,8 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
     }
     public static int defaultPort = 1001;
 
-    public boolean dispatchToSubscribers() {
+    public boolean dispatchToSubscribers() throws ConcurrentModificationException {
+        System.out.println("Dispatching messsages to : "+this.subscribers.values());
         for (Subscriber subscriber : this.subscribers.values()) {
             Socket socket = null;
             ObjectOutputStream oo = null;
@@ -160,7 +164,7 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
                 return true;
             } catch (IOException ioe) {
                 System.out.println(ioe);
-                return false;
+                continue;
             }
         }
         return true;
