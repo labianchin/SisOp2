@@ -21,14 +21,14 @@ public class PeerListener extends Thread {
     public MessagesOrganizer organizer;
 
     public PeerListener(MessagesOrganizer organizer) {
-        this.organizer = organizer;
+        this.organizer = organizer; //guarda o objeto q deve ser chamado para salvar mensagens
     }
     private ServerSocket server = null;
 
     @Override
     public void run() {
 
-        try {
+        try { //cria o servidor
             server = new ServerSocket(getPort()); /* start listening on the port */
         } catch (IOException e) {
             System.err.println("Could not listen on port: " + getPort());
@@ -41,7 +41,7 @@ public class PeerListener extends Thread {
         while (true) {
             Socket client = null;
             try {
-                client = server.accept();
+                client = server.accept(); //recebe conexão do cliente
             } catch (IOException e) {
                 System.err.println("Accept failed.");
                 System.err.println(e);
@@ -50,23 +50,18 @@ public class PeerListener extends Thread {
 
 
             try {
-                /* obtain an input stream to the client *//*
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                client.getInputStream()));*/
                 ObjectInputStream oi =
                         new ObjectInputStream(client.getInputStream());
-                while (client.isConnected()) {
+                while (client.isConnected()) { //enquanto possue conexão ativa, recebe mensangens
                     //Read serialized object
-                    Message message = (Message) oi.readObject();
-                    message.stampRecieve(client.getInetAddress().getHostName()+":"+client.getPort());
-                    organizer.addMessage(message);
+                    Message message = (Message) oi.readObject(); //recebe mensagem do buffer
+                    message.stampRecieve(client.getInetAddress().getHostName()+":"+client.getPort()); //carimba mensagem
+                    organizer.addMessage(message);//pede para salvar mensagem (na fila)
 
                     System.out.println(
                             "Listener ("
                             + (server.getInetAddress().getHostName() + ":" + server.getLocalPort())
                             + ") recieved Message: " + message);
-                    /*DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());
-                    outToClient.writeBytes("ok hehe");*/
                 }
 
             } catch (ClassNotFoundException cnfe) {

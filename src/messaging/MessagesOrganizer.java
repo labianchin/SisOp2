@@ -5,7 +5,7 @@
 package messaging;
 
 /**
- *
+ * Interface para recebimento de mensagens
  * @author luisarmando
  */
 public interface MessagesOrganizer {

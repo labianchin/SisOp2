@@ -18,28 +18,37 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class Peer implements MessagesOrganizer {
 
     public PeerListener listener;
-    public Queue<Message> incomingQueue;
-    public Queue<Message> outgoingQueue;
+    public Queue<Message> incomingQueue; //fila das mensagens recebidas
+    public Queue<Message> outgoingQueue; //filas das mensagens a enviar (não conseguiram ser enviadas)
     public int port;
 
     public Peer() {
-        this.incomingQueue = new PriorityBlockingQueue();
-        this.outgoingQueue = new PriorityBlockingQueue();
-        listener = new PeerListener((MessagesOrganizer)this);
-        listener.start();
+        this.prepare();
+        this.startAll();
     }
     
     public Peer(int port) {
+        this.prepare();
+        listener.setPort(port);
+        this.port = port;
+        this.startAll();
+    }
+    
+    //Prepara filas e thread servidora (que escuta mensagens)
+    public void prepare(){
         this.incomingQueue = new PriorityBlockingQueue();
         this.outgoingQueue = new PriorityBlockingQueue();
         listener = new PeerListener((MessagesOrganizer)this);
-        listener.setPort(port);
-        this.port = port;
-        listener.start();
+    }
+    
+    //inicia thread servidora
+    public void startAll(){
+        listener.start();  
     }
 
+    //envia uma mensagem
     public boolean sendMessage(Message message) {
-        if (message.peerDispath()) {
+        if (message.peerDispath()) { //tenta enviar mensagem
             //this.proccessOutgoingMessages();
             return true;
         } else { //não conseguiu enviar, coloca numa fila para ser enviado
@@ -48,10 +57,12 @@ public class Peer implements MessagesOrganizer {
         }
     }
 
+    //lê mensagem da fila de mensagens
     public Message readMessage() {
         return incomingQueue.poll();
     }
     
+    //recebe mensagem da thread servidora, coloca na fila
     @Override
     public boolean addMessage(Message message){
         return this.incomingQueue.add(message);

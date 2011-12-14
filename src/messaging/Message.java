@@ -30,6 +30,7 @@ public class Message implements Serializable, Comparable<Message> {
     public String topic = "";
     public int priority = 0;
     
+    /* Cria uma nova mensagem, inicializa a timestamp de envio na data atual */
     public Message(String to, String contents){
         this.timestampSender = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());//Calendar.getInstance().getTime();
         this.to = to;
@@ -49,6 +50,7 @@ public class Message implements Serializable, Comparable<Message> {
         this.contents = contents;
     }
     
+    /* Mostra a mensagem como string */
     @Override
     public String toString(){
         String body = this.contents;
@@ -59,18 +61,21 @@ public class Message implements Serializable, Comparable<Message> {
                 ": " + body;
     }
     
+    /* Carimba recebimento na mensagem */
     public void stampRecieve(String sender){
-        this.from = sender;
-        this.timestampReciever = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
+        this.from = sender; //seta quem enviou a mensagem
+        this.timestampReciever = //seta timestamp de recebimento
+                new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
     }
     
+    //Ordena mensagem pela prioridade e após pela timestamp
     @Override
     public int compareTo(Message message){
         if (this.priority > message.priority)
             return 1;
         else if (this.priority < message.priority)
             return -1;
-        else
+        else //se prioridades das mensagens são iguais, verifica pela timestamp
             return this.timestampReciever.compareTo(message.timestampReciever);
     }
     
@@ -81,17 +86,16 @@ public class Message implements Serializable, Comparable<Message> {
         String[] addport = to.split(":");
         String address = addport[0];
         int port;
-        if (addport.length<2)
+        if (addport.length<2) //quebra a string de envio, no formato <ip:porta>
             port = this.defaultPort;
         else
             port = Integer.parseInt(addport[1]);
         try {
-            socket = new Socket(InetAddress.getByName(address), port);
+            socket = new Socket(InetAddress.getByName(address), port); //cria conexão
             ObjectOutputStream oo = new ObjectOutputStream(socket.getOutputStream());
-            //Send object over the network
-            oo.writeObject(this);
+            oo.writeObject(this); // envia a própria mensagem
             oo.flush();
-            socket.close();
+            socket.close(); //fecha a conexão
             return true;
         } catch (IOException ioe) {
             System.out.println(ioe);
@@ -99,10 +103,12 @@ public class Message implements Serializable, Comparable<Message> {
         }
     }
     
+    /* Envia a mensagem para o endereço registrado no destinatário dela */
     public boolean peerDispath(){
         return this.dispatchTo(this.to);
     }
     
+    /* Constrói uma mensagem de réplica, usando mesmo titulo e tópicos */
     public Message buildReply(String replyContents){
         Message reply = new Message(this.from, replyContents);
         reply.title = this.title;
