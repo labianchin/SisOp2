@@ -19,10 +19,7 @@ public class PSServerSample {
     public static void main(String[] args) throws InterruptedException {
 
         Random rand = new Random();
-        PSServer serv = new PSServer((rand.nextInt(999)) + 1001);
-        Thread.sleep(1000);
-        serv.subscribe("localhost:1002", "%");
-        serv.dispatchToSubscribers();
+        PSServer serv = new PSServer((rand.nextInt(800)) + 1025);
         Thread.sleep(1000);
     }
 }

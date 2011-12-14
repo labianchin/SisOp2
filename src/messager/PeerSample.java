@@ -23,7 +23,7 @@ public class PeerSample {
     public static void main(String[] args) throws IOException, InterruptedException {
         // TODO code application logic here
         Random rand = new Random();
-        Peer peer = new Peer((rand.nextInt(999)) + 1001);
+        Peer peer = new Peer((rand.nextInt(800)) + 1025);
         Thread.sleep(1000);
 
         InputStreamReader inp = new InputStreamReader(System.in);
@@ -33,7 +33,7 @@ public class PeerSample {
         while (true) {
             try {
                 //System.in.
-                System.out.println("Enter \"read\", \"resend\", address:port/message or address:port/topic/title/message");
+                System.out.print("> ");
                 String str = in.readLine();
                 if (str.equals("read")) {
                     System.out.println("Read one message: " + peer.readMessage());
