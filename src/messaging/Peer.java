@@ -22,11 +22,19 @@ public class Peer implements MessagesOrganizer {
         listener = new PeerListener((MessagesOrganizer)this);
         listener.start();
     }
+    
+    public Peer(int port) {
+        this.incomingQueue = new PriorityBlockingQueue();
+        listener = new PeerListener((MessagesOrganizer)this);
+        listener.setPort(port);
+        listener.start();
+    }
 
     public boolean sendMessage(Message message) {
-        if (message.peerDispath())
+        if (message.peerDispath()) {
+            this.proccessOutgoingMessages();
             return true;
-        else { //não conseguiu enviar, coloca numa fila para ser enviado
+        } else { //não conseguiu enviar, coloca numa fila para ser enviado
             this.outgoingQueue.add(message);
             return false;
         }
@@ -41,11 +49,16 @@ public class Peer implements MessagesOrganizer {
         return this.incomingQueue.add(message);
     }
     
+    //tenta reenviar mensagens que não foram enviadas ainda
     public void proccessOutgoingMessages(){
         Message message = outgoingQueue.poll();
         while (message!=null){
             this.sendMessage(message);
             message = outgoingQueue.poll();
         }
+    }
+    
+    public void askSubscription(String topic, String title){
+        
     }
 }

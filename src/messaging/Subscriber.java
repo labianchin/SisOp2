@@ -22,17 +22,19 @@ public class Subscriber {
     public Subscriber(String address){
         this.address = address;
         this.subscription = new HashMap();
+        this.lastTimestamp = new Date();
     }
     
     public void subscribe(String topic, String title){
-        if (subscription.containsKey(topic)) {
-            Set<String> topicList = subscription.get(topic);
-            topicList.add(title);
-        } else {
-            Set<String> topicList = new HashSet();
-            subscription.put(topic, topicList);
-            if (title!=null)
+        if (topic != null)
+            if (subscription.containsKey(topic)) {
+                Set<String> topicList = subscription.get(topic);
                 topicList.add(title);
-        }
+            } else {
+                Set<String> topicList = new HashSet();
+                subscription.put(topic, topicList);
+                if (title!=null)
+                    topicList.add(title);
+            }
     }
 }

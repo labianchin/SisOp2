@@ -26,8 +26,8 @@ public class Message implements Serializable, Comparable<Message> {
     public String to;
     public Date timestampSender;
     public Date timestampReciever;
-    public String title = null;
-    public String topic = null;
+    public String title = "";
+    public String topic = "";
     public int priority = 0;
     
     public Message(String to, String contents){

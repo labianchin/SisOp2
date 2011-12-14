@@ -17,27 +17,26 @@ import java.util.Queue;
 public class PeerListener extends Thread {
 
     private int port = 1001; /* port the server listens on */
+
     public MessagesOrganizer organizer;
-    
-    public PeerListener(MessagesOrganizer organizer){
+
+    public PeerListener(MessagesOrganizer organizer) {
         this.organizer = organizer;
     }
-    
-    
-
+    private ServerSocket server = null;
 
     @Override
     public void run() {
-        ServerSocket server = null;
 
-            try {
-                server = new ServerSocket(getPort()); /* start listening on the port */
-            } catch (IOException e) {
-                System.err.println("Could not listen on port: " + getPort());
-                System.err.println(e);
-                System.exit(1);
-            }
-            System.out.println("Serving at port " + getPort());
+        try {
+            server = new ServerSocket(getPort()); /* start listening on the port */
+        } catch (IOException e) {
+            System.err.println("Could not listen on port: " + getPort());
+            System.err.println(e);
+            System.exit(1);
+        }
+        System.out.println("Serving at hostname " + server.getInetAddress().getHostName() + " at port " + getPort());
+
 
         while (true) {
             Socket client = null;
@@ -54,14 +53,18 @@ public class PeerListener extends Thread {
                 /* obtain an input stream to the client *//*
                 BufferedReader in = new BufferedReader(new InputStreamReader(
                 client.getInputStream()));*/
-                    ObjectInputStream oi =
-                            new ObjectInputStream(client.getInputStream());
-                while (client.isConnected()){
+                ObjectInputStream oi =
+                        new ObjectInputStream(client.getInputStream());
+                while (client.isConnected()) {
                     //Read serialized object
                     Message message = (Message) oi.readObject();
                     message.stampRecieve(client.getInetAddress().getHostName());
                     organizer.addMessage(message);
-                    System.out.println("Listener recieved Message: " + message);
+
+                    System.out.println(
+                            "Listener ("
+                            + (server.getInetAddress().getHostName() + ":" + server.getLocalPort())
+                            + ") recieved Message: " + message);
                     /*DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());
                     outToClient.writeBytes("ok hehe");*/
                 }
@@ -88,5 +91,9 @@ public class PeerListener extends Thread {
      */
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public synchronized boolean getIsAlive() {
+        return (server != null && server.isBound());
     }
 }

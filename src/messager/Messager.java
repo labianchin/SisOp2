@@ -36,7 +36,15 @@ public class Messager {
         
         PSServer serv = new PSServer();
         serv.registerTopicTitles(TopicTitle.getTopicTitles());
-        System.out.println(serv.getTopics());
-        System.out.println(serv.getTitles("Cachorros"));
+        peer.sendMessage(new Message("localhost:2001", "teste"));
+        peer.sendMessage(new Message("localhost:2001", "teste2"));
+        peer.sendMessage(new Message("localhost:2001", "teste3"));
+        peer.sendMessage(new Message("localhost:2001", "teste4"));
+        Peer peer2 = new Peer(1002);
+         Thread.sleep(1000);
+         serv.subscribe("localhost:1002", "%");
+         serv.dispatchToSubscribers();
+        System.out.println("Got it: " +peer2.readMessage());
+        System.out.println("Got it: " +peer2.readMessage());
     }
 }
