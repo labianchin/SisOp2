@@ -22,7 +22,7 @@ public class SubscriberSender extends Thread {
     public void run() {
         try {
             while (true) {
-                SubscriberSender.sleep(2000);
+                SubscriberSender.sleep(5000);
                 this.server.dispatchToSubscribers();
             }
         } catch (InterruptedException ex) {

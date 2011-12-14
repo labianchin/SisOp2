@@ -4,6 +4,7 @@
  */
 package messaging;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,12 +18,12 @@ import java.util.Set;
 public class Subscriber {
     public String address;
     public Map<String, Set<String>> subscription;
-    public Date lastTimestamp;
+    public Timestamp lastTimestamp;
     
     public Subscriber(String address){
         this.address = address;
         this.subscription = new HashMap();
-        this.lastTimestamp = new Date();
+        this.lastTimestamp = new Timestamp(0);
     }
     
     public void subscribe(String topic, String title){

@@ -44,6 +44,7 @@ public class Messager {
          Thread.sleep(1000);
          serv.subscribe("localhost:1002", "%");
          serv.dispatchToSubscribers();
+         Thread.sleep(1000);
         System.out.println("Got it: " +peer2.readMessage());
         System.out.println("Got it: " +peer2.readMessage());
     }

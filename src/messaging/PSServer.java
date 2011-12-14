@@ -24,13 +24,14 @@ import java.util.concurrent.PriorityBlockingQueue;
  * Publish/Subscriber central server
  * @author luisarmando
  */
-public class PSServer implements MessagesOrganizer {
+public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
     /* Listen for incomming messages */
 
     public PeerListener listener;
     //public subscribers;
     public Map<String, Subscriber> subscribers;
     public Map<String, Map<String, Queue<Message>>> messages;
+    public SubscriberSender sender;
 
     public PSServer() {
         this.subscribers = new HashMap<String, Subscriber>();
@@ -38,7 +39,7 @@ public class PSServer implements MessagesOrganizer {
         listener = new PeerListener((MessagesOrganizer) this);
         listener.setPort(2001);
         listener.start();
-        SubscriberSender sender = new SubscriberSender(this);
+        sender = new SubscriberSender(this);
         sender.start();
     }
 
@@ -59,25 +60,30 @@ public class PSServer implements MessagesOrganizer {
         return read(topic, null);
     }
 
-    public void subscribe(String address, String topic, String title) {
+    @Override
+    public synchronized void subscribe(String address, String topic, String title) {
         if (!this.subscribers.containsKey(address)) {
             this.subscribers.put(address, new Subscriber(address));
         }
         Subscriber subscriber = this.subscribers.get(address);
         subscriber.subscribe(topic, title);
+        //this.sender.notify();
     }
-    
-    public void subscribe(String address, String subscription){
+
+    @Override
+    public synchronized void subscribe(String address, String subscription) {
         String[] s = subscription.split("%");
         String title, topic;
-        if (s.length<1 || s[0].isEmpty())
+        if (s.length < 1 || s[0].isEmpty()) {
             topic = null;
-        else 
+        } else {
             topic = s[0];
-        if (s.length<2 || s[1].isEmpty())
+        }
+        if (s.length < 2 || s[1].isEmpty()) {
             title = null;
-        else
+        } else {
             title = s[1];
+        }
         this.subscribe(address, topic, title);
     }
     public static int defaultPort = 1001;
@@ -96,7 +102,7 @@ public class PSServer implements MessagesOrganizer {
             try { //envia várias mensagens para um assinante numa mesma conexão
                 socket = new Socket(InetAddress.getByName(address), port);
                 ObjectOutputStream oo = new ObjectOutputStream(socket.getOutputStream());
-                System.out.println("Sending to "+(address + ":" + port));
+                System.out.println("Sending to " + (address + ":" + port));
                 //Send object over the network
                 for (String topic : this.messages.keySet()) {
                     if (!subscriber.subscription.isEmpty()
@@ -107,16 +113,19 @@ public class PSServer implements MessagesOrganizer {
 
                     for (String title : this.messages.get(topic).keySet()) {
                         boolean found = titleList == null || titleList.isEmpty();
-                        if (!found)
+                        if (!found) {
                             for (String titleSubscription : titleList) {
                                 if (title.equals(titleSubscription)) {
                                     found = true;
                                     break;
                                 }
                             }
+                        }
                         if (found) {
+                                //System.out.println(subscriber.lastTimestamp);
                             for (Message message : this.messages.get(topic).get(title)) {
-                                if (message.timestampReciever.compareTo(subscriber.lastTimestamp) < 0) { //TODO: corrigir ordens das timestamps
+                                //System.out.println(message.timestampReciever);
+                                if (message.timestampReciever.compareTo(subscriber.lastTimestamp) > 0) {
                                     oo.writeObject(message);
                                     oo.flush();
                                     subscriber.lastTimestamp = message.timestampReciever;
@@ -148,7 +157,7 @@ public class PSServer implements MessagesOrganizer {
     }
 
     @Override
-    public boolean addMessage(Message message) {
+    public synchronized boolean addMessage(Message message) {
         if (!this.messages.containsKey(message.topic)) {
             this.messages.put(message.topic, new ConcurrentHashMap<String, Queue<Message>>());
         }
@@ -156,7 +165,9 @@ public class PSServer implements MessagesOrganizer {
         if (!topicList.containsKey(message.title)) {
             topicList.put(message.title, new PriorityBlockingQueue<Message>());
         }
-        return topicList.get(message.title).add(message);
+        Boolean ret = topicList.get(message.title).add(message);
+        //this.sender.notify();
+        return ret;
     }
 
     public void registerTopicTitles(List<Entry<String, String>> list) {
@@ -170,10 +181,11 @@ public class PSServer implements MessagesOrganizer {
             }
         }
         System.out.println("Topic/Title list: ");
-        for (String topic : this.messages.keySet()){
-            System.out.println("\t"+topic);
-            for (String title : this.messages.get(topic).keySet())
-                System.out.println("\t\t"+title);
+        for (String topic : this.messages.keySet()) {
+            System.out.println("\t" + topic);
+            for (String title : this.messages.get(topic).keySet()) {
+                System.out.println("\t\t" + title);
+            }
         }
         System.out.println(this.getTopics());
     }

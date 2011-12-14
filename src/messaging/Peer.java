@@ -19,12 +19,14 @@ public class Peer implements MessagesOrganizer {
 
     public Peer() {
         this.incomingQueue = new PriorityBlockingQueue();
+        this.outgoingQueue = new PriorityBlockingQueue();
         listener = new PeerListener((MessagesOrganizer)this);
         listener.start();
     }
     
     public Peer(int port) {
         this.incomingQueue = new PriorityBlockingQueue();
+        this.outgoingQueue = new PriorityBlockingQueue();
         listener = new PeerListener((MessagesOrganizer)this);
         listener.setPort(port);
         listener.start();
@@ -51,10 +53,10 @@ public class Peer implements MessagesOrganizer {
     
     //tenta reenviar mensagens que não foram enviadas ainda
     public void proccessOutgoingMessages(){
-        Message message = outgoingQueue.poll();
-        while (message!=null){
-            this.sendMessage(message);
+        Message message;
+        while (!outgoingQueue.isEmpty()){
             message = outgoingQueue.poll();
+            this.sendMessage(message);
         }
     }
     

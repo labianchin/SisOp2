@@ -9,8 +9,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Contem informações sobre uma mensagem.
@@ -24,20 +24,20 @@ public class Message implements Serializable, Comparable<Message> {
     public String contents;
     public String from;
     public String to;
-    public Date timestampSender;
-    public Date timestampReciever;
+    public Timestamp timestampSender;
+    public Timestamp timestampReciever;
     public String title = "";
     public String topic = "";
     public int priority = 0;
     
     public Message(String to, String contents){
-        this.timestampSender = Calendar.getInstance().getTime();
+        this.timestampSender = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());//Calendar.getInstance().getTime();
         this.to = to;
         this.contents = contents;
     }
     
     public Message(String contents){
-        this.timestampSender = Calendar.getInstance().getTime();
+        this.timestampSender = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
         this.contents = contents;
     }
     
@@ -48,7 +48,7 @@ public class Message implements Serializable, Comparable<Message> {
     
     public void stampRecieve(String sender){
         this.from = sender;
-        this.timestampReciever = Calendar.getInstance().getTime();
+        this.timestampReciever = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
     }
     
     @Override
