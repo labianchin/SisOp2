@@ -54,9 +54,9 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
         this.messages = new ConcurrentHashMap<String, Map<String, Queue<Message>>>();
         this.listener = new PeerListener((MessagesOrganizer) this);
         this.listener.setPort(this.port);
-        subscriptionListener.setPort(this.port+1);
         this.sender = new SubscriberSender(this);
         this.subscriptionListener = new SubscriptionListener(this);
+        subscriptionListener.setPort(this.port+1);
     }
 
     //inicia threads
@@ -144,7 +144,6 @@ public class PSServer implements MessagesOrganizer, SubscribesOrganizer {
                     socket.close();
                     System.out.println("Debug: connection with "+subscriber.address+" closed");
                 }
-                return true;
             } catch (IOException ioe) {
                 System.out.println(ioe);
                 continue;
